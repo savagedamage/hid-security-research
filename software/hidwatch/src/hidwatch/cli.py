@@ -105,10 +105,7 @@ def cmd_list(args: argparse.Namespace) -> int:
     from hidwatch.backends import linux_sysfs
 
     if not linux_sysfs.available():
-        print(
-            "No HID enumeration backend available on this host "
-            "(sysfs /sys/bus/usb not present)."
-        )
+        print("No HID enumeration backend available on this host (sysfs /sys/bus/usb not present).")
         print("hidwatch does not fabricate devices; run against fixtures instead:")
         print("  hidwatch inspect --demo benign-keyboard")
         print("  hidwatch analyze --demo badusb-flashdrive")
@@ -120,10 +117,7 @@ def cmd_list(args: argparse.Namespace) -> int:
         return 0
     for d in hid_only:
         kinds = "keyboard" if d.keyboard_interfaces else "HID"
-        print(
-            f"{d.vid_pid}  {kinds:9}  {d.product or '(unknown)'}  "
-            f"[{len(d.interfaces)} iface]"
-        )
+        print(f"{d.vid_pid}  {kinds:9}  {d.product or '(unknown)'}  [{len(d.interfaces)} iface]")
     return 0
 
 
@@ -136,9 +130,7 @@ def cmd_inspect(args: argparse.Namespace) -> int:
     from hidwatch.backends import linux_sysfs
 
     devices = linux_sysfs.list_usb_devices()
-    match = (
-        [d for d in devices if d.vid_pid == args.vid_pid] if args.vid_pid else devices
-    )
+    match = [d for d in devices if d.vid_pid == args.vid_pid] if args.vid_pid else devices
     if not match:
         print("No matching device. Use --demo <name> to inspect a fixture.")
         return 1
@@ -208,9 +200,7 @@ def cmd_policy(_args: argparse.Namespace) -> int:
     print(f"  min_human_jitter_stdev_s:   {p.min_human_jitter_stdev_s} s")
     print(f"  min_samples_for_timing:     {p.min_samples_for_timing}")
     print(f"  allowlist_vid_pid:          {sorted(p.allowlist_vid_pid) or '(empty)'}")
-    print(
-        f"  fast_input_allowlist:       {sorted(p.fast_input_allowlist) or '(empty)'}"
-    )
+    print(f"  fast_input_allowlist:       {sorted(p.fast_input_allowlist) or '(empty)'}")
     return 0
 
 
@@ -219,29 +209,21 @@ def build_parser() -> argparse.ArgumentParser:
         prog="hidwatch",
         description="Defensive HID observability and behavioral risk analysis.",
     )
-    parser.add_argument(
-        "--version", action="version", version=f"hidwatch {__version__}"
-    )
+    parser.add_argument("--version", action="version", version=f"hidwatch {__version__}")
     sub = parser.add_subparsers(dest="command", required=True)
 
     p_list = sub.add_parser("list", help="enumerate HID/USB devices (read-only)")
-    p_list.add_argument(
-        "--all", action="store_true", help="show all USB devices, not just HID"
-    )
+    p_list.add_argument("--all", action="store_true", help="show all USB devices, not just HID")
     p_list.set_defaults(func=cmd_list)
 
     p_ins = sub.add_parser("inspect", help="detailed view + risk of a device/fixture")
-    p_ins.add_argument(
-        "--demo", choices=sorted(DEMOS), help="inspect a built-in fixture"
-    )
+    p_ins.add_argument("--demo", choices=sorted(DEMOS), help="inspect a built-in fixture")
     p_ins.add_argument("--vid-pid", help="filter by vid:pid (hardware)")
     p_ins.set_defaults(func=cmd_inspect)
 
     p_an = sub.add_parser("analyze", help="risk-analyze a scenario or fixture")
     p_an.add_argument("scenario", nargs="?", help="path to a JSON scenario file")
-    p_an.add_argument(
-        "--demo", choices=sorted(DEMOS), help="analyze a built-in fixture"
-    )
+    p_an.add_argument("--demo", choices=sorted(DEMOS), help="analyze a built-in fixture")
     p_an.set_defaults(func=cmd_analyze)
 
     p_desc = sub.add_parser("descriptor", help="parse+validate a raw report descriptor")
@@ -254,9 +236,7 @@ def build_parser() -> argparse.ArgumentParser:
     # report is an alias for analyze with full output
     p_rep = sub.add_parser("report", help="alias for analyze (full risk report)")
     p_rep.add_argument("scenario", nargs="?", help="path to a JSON scenario file")
-    p_rep.add_argument(
-        "--demo", choices=sorted(DEMOS), help="analyze a built-in fixture"
-    )
+    p_rep.add_argument("--demo", choices=sorted(DEMOS), help="analyze a built-in fixture")
     p_rep.set_defaults(func=cmd_analyze)
 
     return parser

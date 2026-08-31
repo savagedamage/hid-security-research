@@ -29,8 +29,7 @@ def test_scenario_meets_expected_risk(path: Path) -> None:
     report = analyze(scn["device"], scn["events"], attach_time=scn["attach_time"])
     expected = RiskLevel[scn["expected_risk"]]
     assert report.level == expected, (
-        f"{path.name}: expected {expected}, got {report.level}; "
-        f"reasons={report.reasons()}"
+        f"{path.name}: expected {expected}, got {report.level}; reasons={report.reasons()}"
     )
 
 
@@ -40,9 +39,7 @@ def test_barcode_scanner_downgrades_with_allowlist() -> None:
         pytest.skip("scanner fixture missing")
     scn = load_scenario(path)
     policy = Policy(fast_input_allowlist=FAST_INPUT_ALLOWLIST)
-    report = analyze(
-        scn["device"], scn["events"], policy=policy, attach_time=scn["attach_time"]
-    )
+    report = analyze(scn["device"], scn["events"], policy=policy, attach_time=scn["attach_time"])
     # Allow-listing a legitimate fast typer must reduce its risk below HIGH.
     assert report.level < RiskLevel.HIGH
 

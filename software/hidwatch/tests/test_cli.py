@@ -33,7 +33,7 @@ def test_analyze_demo_badusb_returns_nonzero_risk(
 
 
 def test_descriptor_subcommand(capsys: pytest.CaptureFixture[str]) -> None:
-    rc = main(["descriptor", "05010906A1010507" "19E029E7150025017501" "95088102C0"])
+    rc = main(["descriptor", "05010906A101050719E029E715002501750195088102C0"])
     out = capsys.readouterr().out
     assert rc == 0
     assert "Usage pages" in out

@@ -117,9 +117,7 @@ def parse_report_descriptor(data: bytes) -> DescriptorSummary:
     if len(data) == 0:
         raise DescriptorError("empty descriptor")
     if len(data) > MAX_DESCRIPTOR_LEN:
-        raise DescriptorError(
-            f"descriptor too large: {len(data)} > {MAX_DESCRIPTOR_LEN} bytes"
-        )
+        raise DescriptorError(f"descriptor too large: {len(data)} > {MAX_DESCRIPTOR_LEN} bytes")
 
     summary = DescriptorSummary()
 
@@ -136,9 +134,7 @@ def parse_report_descriptor(data: bytes) -> DescriptorSummary:
     while i < n:
         summary.item_count += 1
         if summary.item_count > MAX_ITEMS:
-            raise DescriptorError(
-                "too many items (possible hostile/looping descriptor)"
-            )
+            raise DescriptorError("too many items (possible hostile/looping descriptor)")
 
         prefix = data[i]
         i += 1
@@ -162,9 +158,7 @@ def parse_report_descriptor(data: bytes) -> DescriptorSummary:
         item_tag = (prefix >> 4) & 0x0F
 
         if i + item_size > n:
-            raise DescriptorError(
-                f"truncated item at offset {i - 1}: needs {item_size} data bytes"
-            )
+            raise DescriptorError(f"truncated item at offset {i - 1}: needs {item_size} data bytes")
         raw = int.from_bytes(data[i : i + item_size], "little")
         i += item_size
 
@@ -232,9 +226,7 @@ def parse_report_descriptor(data: bytes) -> DescriptorSummary:
         # for the summary. We only need pages + structure for risk analysis.
 
     if collection_depth != 0:
-        summary.anomalies.append(
-            f"unbalanced collections (depth {collection_depth} at end)"
-        )
+        summary.anomalies.append(f"unbalanced collections (depth {collection_depth} at end)")
     if global_stack:
         summary.anomalies.append(f"{len(global_stack)} unmatched Push item(s)")
     if summary.total_input_bits > MAX_REPORT_SIZE_BITS * MAX_REPORT_COUNT:
