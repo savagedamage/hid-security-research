@@ -1,0 +1,22 @@
+id,entry_type,cve,date,title,manufacturer,transport,attack_class,attack_direction,severity_base_score,severity_base_severity,evidence,confidence
+cve-2014-3184,CVE,CVE-2014-3184,2014-09-28,Linux kernel HID report_fixup out-of-bounds via crafted report descriptor,Linux,usb,HID-04|HID-15,DEVICE_TO_HOST,5.3,MEDIUM,documented,high
+cve-2016-6257,CVE,CVE-2016-6257,2016-08-02,Lenovo/Liteon wireless keyboard dongle firmware crypto weakness (KeyJack class),Lenovo / Liteon,proprietary-rf,HID-07|HID-03,DEVICE_TO_HOST,,,demonstrated,high
+cve-2017-14315,CVE,CVE-2017-14315,2017-09-12,BlueBorne (iOS LEAP): Bluetooth stack heap overflow to full device control,Apple,bluetooth-bredr,HID-15,DEVICE_TO_HOST,7.5,HIGH,documented,high
+cve-2019-9506,CVE,CVE-2019-9506,2019-08-14,KNOB: Bluetooth BR/EDR encryption key negotiation downgrade,Bluetooth SIG / multiple,bluetooth-bredr,HID-07,DEVICE_TO_HOST,8.1,HIGH,demonstrated,high
+cve-2020-0022,CVE,CVE-2020-0022,2020-02-13,BlueFrag: Android Bluetooth stack RCE over BR/EDR (no user interaction),Google,bluetooth-bredr,HID-15,DEVICE_TO_HOST,8.8,HIGH,documented,high
+cve-2020-0465,CVE,CVE-2020-0465,2020-12-14,Android/Linux hid-multitouch out-of-bounds write from malicious HID device,Google/Linux,usb|bluetooth-bredr,HID-05|HID-15,DEVICE_TO_HOST,,,documented,high
+cve-2020-0556,CVE,CVE-2020-0556,2020-03-12,BlueZ improper access control (privilege escalation / DoS) in HID/HOGP subsystem,BlueZ / Linux (reported by Intel),bluetooth-bredr|ble,HID-06|HID-15,DEVICE_TO_HOST,7.1,HIGH,documented,high
+cve-2023-45866,CVE,CVE-2023-45866,2023-12-08,BlueZ / cross-platform unauthenticated Bluetooth HID keystroke injection,"BlueZ / Linux; also affected Android, macOS/iOS, Windows stacks (per researcher)",bluetooth-bredr|ble,HID-06|HID-15,DEVICE_TO_HOST,6.3,MEDIUM,demonstrated,high
+cve-2024-0230,CVE,CVE-2024-0230,2024-01-12,Apple Magic Keyboard Bluetooth session-management issue (physical-access key recovery),Apple,bluetooth-bredr|ble,HID-07,DEVICE_TO_HOST,,,documented,high
+cve-2025-38103,CVE,CVE-2025-38103,2025-07-03,Linux usbhid_parse recurrent out-of-bounds read in HID descriptor parsing,Linux,usb,HID-04|HID-15,DEVICE_TO_HOST,,,documented,high
+cve-2025-39806,CVE,CVE-2025-39806,2025-09-16,Linux HID multitouch slab-out-of-bounds in mt_report_fixup from malicious device,Linux,usb|bluetooth-bredr,HID-04|HID-05|HID-15,DEVICE_TO_HOST,,,documented,high
+cve-2025-55096,CVE,CVE-2025-55096,2025-10-17,Eclipse ThreadX USBX host HID report descriptor out-of-bounds read,Eclipse Foundation,usb,HID-04|HID-15,DEVICE_TO_HOST,,,documented,high
+cve-2025-68656,CVE,CVE-2025-68656,2026-01-12,Espressif ESP-IDF USB Host HID driver use-after-free on GET_DESCRIPTOR,Espressif,usb,HID-05|HID-15,DEVICE_TO_HOST,,,documented,high
+cve-2026-43140,CVE,CVE-2026-43140,2026-05-06,Linux HID magicmouse NULL-pointer crash from fake USB device,Linux,usb|bluetooth-bredr,HID-05|HID-15,DEVICE_TO_HOST,,,documented,high
+incident-nsa-ant-cottonmouth,documented-incident,,2013-12,NSA ANT catalog COTTONMOUTH: USB hardware implant with RF exfiltration,documented in leaked NSA ANT catalog,usb|proprietary-rf,HID-08|HID-11,DEVICE_TO_HOST|DEVICE_TO_NETWORK,,,documented,high
+poc-badusb-2014,proof-of-concept,,2014-08,BadUSB: reprogramming USB device firmware to impersonate a keyboard,n/a (research),usb,HID-01|HID-02|HID-03|HID-05,DEVICE_TO_HOST,,,demonstrated,high
+poc-omg-cable,security-product,,2019,O.MG Cable: keystroke-injection implant with embedded Wi-Fi inside a normal-looking cable,Mischief Gadgets / MG (sold via Hak5),usb|proprietary-rf,HID-01|HID-02|HID-08|HID-11,DEVICE_TO_HOST|DEVICE_TO_NETWORK,,,demonstrated,high
+poc-usb-rubber-ducky,security-product,,2010,USB Rubber Ducky: commodity keystroke-injection HID device,Hak5,usb,HID-01|HID-02,DEVICE_TO_HOST,,,demonstrated,high
+product-usbguard,security-product,,2016,USBGuard: Linux USB device authorization framework (defensive reference),open-source (USBGuard project),usb,HID-01|HID-02,DEVICE_TO_HOST,,,documented,high
+research-malboard-2018,academic-research,,2018,Malboard: attacking behavioral keystroke-dynamics authentication,n/a (academic),usb,HID-02|HID-01,DEVICE_TO_HOST,,,demonstrated,medium
+research-mousejack-2016,academic-research,,2016-02,MouseJack / KeyJack: keystroke injection into non-Bluetooth 2.4GHz HID dongles,multiple (Bastille Research disclosure),proprietary-rf,HID-02|HID-07|HID-01,DEVICE_TO_HOST,,,demonstrated,high

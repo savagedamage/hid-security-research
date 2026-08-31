@@ -1,0 +1,52 @@
+# TEMPLATE for a data/cves/ entry. Copy to <id>.yaml and fill in.
+# Validate: python scripts/research-tools/validate_dataset.py
+# Rules: cite primary sources, set evidence + confidence honestly, use null
+# (not a guess) for unknowns. Only PUBLIC vulnerabilities. See CONTRIBUTING.md.
+
+id: example-slug                 # lowercase-hyphen, must match filename
+title: Human-readable one-line title
+entry_type: CVE                  # CVE | academic-research | proof-of-concept |
+                                 # documented-incident | security-product |
+                                 # theoretical-threat
+cve: CVE-YYYY-NNNNN              # or null
+date: "YYYY-MM-DD"               # or "YYYY" / "YYYY-MM"
+
+affected_product: null
+manufacturer: null
+platform: []                     # [Linux, Android, Windows, macOS, iOS, RTOS, ...]
+transport: []                    # [usb, bluetooth-bredr, ble, proprietary-rf, wired-nonusb, n/a, any]
+protocol: []                     # [hid, hidp, hogp, gatt, usb-hid, l2cap, dfu]
+
+attack_class: []                 # [HID-05] etc. from taxonomy.yaml
+attack_direction: []             # [DEVICE_TO_HOST], etc.
+attack_vector: null
+prerequisites: null
+authentication_required: null    # none | adjacent-unauth | user-interaction | privileged | physical | null
+user_interaction: null           # none | required | unknown | null
+firmware_involved: null          # true | false | null
+host_component: null
+network_component: null          # true | false | null
+
+impact: ""
+severity:
+  cvss_version: null
+  base_score: null
+  base_severity: null            # NONE | LOW | MEDIUM | HIGH | CRITICAL | null
+  vector: null
+cwe: []                          # [CWE-787] etc.
+
+technical_summary: ""
+
+detection: null
+mitigation: null
+
+references:
+  - url: "https://..."
+    source: NVD                  # NVD | MITRE | CISA | vendor | academic | kernel | ...
+    primary: true
+
+confidence: medium               # high | medium | low
+evidence: documented             # observed | documented | demonstrated | reported | inferred | theoretical
+disputed: false
+notes: null
+last_reviewed: "2026-08-31"

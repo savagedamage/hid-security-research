@@ -1,0 +1,57 @@
+id: product-usbguard
+title: "USBGuard: Linux USB device authorization framework (defensive reference)"
+entry_type: security-product
+cve: null
+date: "2016"
+
+affected_product: USBGuard
+manufacturer: open-source (USBGuard project)
+platform: [Linux]
+transport: [usb]
+protocol: [usb-hid]
+
+attack_class: [HID-01, HID-02]
+attack_direction: [DEVICE_TO_HOST]
+attack_vector: n/a (defense)
+prerequisites: >
+  Root/admin to configure policy; Linux with USBGuard installed.
+authentication_required: privileged
+user_interaction: required
+firmware_involved: false
+host_component: Linux USB authorization layer (sysfs authorized flag)
+network_component: false
+
+impact: >
+  Provides allow/block policy for USB devices by attribute (VID/PID, serial, interface classes), letting administrators block unexpected HID interfaces before the host binds a driver.
+severity:
+  cvss_version: null
+  base_score: null
+  base_severity: null
+  vector: ""
+cwe: []
+
+technical_summary: >
+  USBGuard is an open-source framework that implements USB device authorization policy on Linux using the kernel's per-device 'authorized' flag. Policies can allow-list known devices and block new ones -- including blocking devices that expose unexpected HID/keyboard interfaces. It is a key defensive reference for this project: it addresses HID-01/HID-02 at the authorization layer, but is limited by VID/PID spoofability and cannot inspect report/descriptor content or behavior, which is where hidwatch and a HID firewall add value.
+
+detection: >
+  n/a (it is an enforcement/authorization control, complementary to behavioral detection).
+mitigation: >
+  Deploy USBGuard with a curated allow-list; combine with behavioral monitoring.
+
+references:
+  - url: "https://usbguard.github.io/"
+    source: vendor
+    primary: true
+  - url: "https://github.com/USBGuard/usbguard"
+    source: vendor
+    primary: true
+  - url: "https://www.kernel.org/doc/html/latest/usb/authorization.html"
+    source: kernel
+    primary: true
+
+confidence: high
+evidence: documented
+disputed: false
+notes: >
+  Baseline defensive control; hidwatch is designed to complement, not replace, authorization frameworks like this.
+last_reviewed: "2026-08-31"

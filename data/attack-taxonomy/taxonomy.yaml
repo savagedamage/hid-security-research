@@ -1,0 +1,209 @@
+# HID Attack Taxonomy
+#
+# A structured, extensible classification of attack techniques against HID
+# devices and the hosts/software that trust them.
+#
+# Design principles:
+#   - Each class has a stable ID (HID-NN) so dataset entries can reference it.
+#   - Each class records its primary attack DIRECTION (see THREAT_MODEL.md §2).
+#   - Framework mappings (MITRE ATT&CK, CWE, CAPEC) are included ONLY where they
+#     genuinely fit. Absence of a mapping is meaningful, not an oversight.
+#   - Extend by adding new HID-NN entries; do not renumber existing ones.
+#
+# Validate with: python scripts/research-tools/validate_dataset.py
+#
+# last_reviewed: 2026-08-31
+
+version: "0.1.0"
+last_reviewed: "2026-08-31"
+
+directions:
+  DEVICE_TO_HOST: "Peripheral attacks the computer (dominant class)."
+  HOST_TO_DEVICE: "Host/malware attacks the peripheral (firmware, config, debug)."
+  DEVICE_TO_NETWORK: "Peripheral/radio reaches network or other devices."
+  COMPANION_TO_HOST: "Vendor companion software attacks/weakens the host."
+
+classes:
+  - id: HID-01
+    name: Device Impersonation
+    direction: DEVICE_TO_HOST
+    summary: >
+      A device presents a false identity (e.g. claims to be a keyboard, or
+      spoofs VID/PID/descriptors) to obtain a trusted input channel or defeat
+      allow-lists. VID/PID are unauthenticated firmware fields.
+    requires_software_vuln: false
+    mitre_attack: ["T1200"]        # Hardware Additions
+    capec: ["CAPEC-624", "CAPEC-440"]  # Hardware Fault Injection (adj.); Hardware Integrity Attack
+    cwe: []
+    notes: "Impersonation itself is not a memory-safety bug; it abuses design trust."
+
+  - id: HID-02
+    name: Keystroke Injection
+    direction: DEVICE_TO_HOST
+    summary: >
+      A device sends keystrokes/HID reports the user never intended, driving
+      the host to run commands or change settings. Works even with a perfectly
+      correct host stack.
+    requires_software_vuln: false
+    mitre_attack: ["T1200", "T1059"]   # Hardware Additions; Command and Scripting Interpreter (effect)
+    capec: ["CAPEC-624"]
+    cwe: []
+    notes: "BadUSB / Rubber Ducky class. Defense is policy + behavior, not patching."
+
+  - id: HID-03
+    name: Malicious Firmware
+    direction: DEVICE_TO_HOST
+    summary: >
+      Device firmware is replaced or authored to behave maliciously (add HID
+      interfaces, inject, exfiltrate). Precondition is often reflashable,
+      unsigned firmware.
+    requires_software_vuln: false
+    mitre_attack: ["T1542", "T1200"]   # Pre-OS Boot / Hardware Additions
+    capec: ["CAPEC-624"]
+    cwe: ["CWE-1326"]  # Missing Immutable Root of Trust in Hardware
+    notes: "Bridges HOST_TO_DEVICE (flashing) and DEVICE_TO_HOST (effect)."
+
+  - id: HID-04
+    name: Descriptor Manipulation
+    direction: DEVICE_TO_HOST
+    summary: >
+      A crafted/hostile HID report descriptor triggers host parser bugs or
+      declares unexpected capabilities (extra usages, oversized report counts).
+    requires_software_vuln: true
+    mitre_attack: ["T1200"]
+    capec: ["CAPEC-100"]   # Overflow Buffers (via descriptor)
+    cwe: ["CWE-119", "CWE-787", "CWE-125"]
+    notes: "See CVE-2014-3184, CVE-2025-39806, CVE-2025-55096."
+
+  - id: HID-05
+    name: Parser Exploitation
+    direction: DEVICE_TO_HOST
+    summary: >
+      Malformed HID reports (inconsistent with the declared descriptor) exploit
+      memory-safety bugs in host HID drivers/parsers.
+    requires_software_vuln: true
+    mitre_attack: ["T1203"]   # Exploitation for Client Execution (adjacent)
+    capec: ["CAPEC-100", "CAPEC-123"]
+    cwe: ["CWE-787", "CWE-125", "CWE-476"]
+    notes: "See CVE-2020-0465, CVE-2025-38103, CVE-2026-43140."
+
+  - id: HID-06
+    name: Bluetooth Unauthorized Input
+    direction: DEVICE_TO_HOST
+    summary: >
+      A Bluetooth/BLE device gets HID reports (keystrokes) accepted without
+      proper user authorization, often via HID/GAP role decoupling or
+      forced/silent pairing.
+    requires_software_vuln: true
+    mitre_attack: ["T1200"]
+    capec: ["CAPEC-555"]
+    cwe: ["CWE-287", "CWE-306"]  # Improper / Missing Authentication
+    notes: "Flagship example: CVE-2023-45866 (BlueZ HOGP unauth injection)."
+
+  - id: HID-07
+    name: Pairing / Authorization Abuse
+    direction: DEVICE_TO_HOST
+    summary: >
+      Weak pairing (Just Works, legacy pairing, negotiable key length) enables
+      MITM, spoofing, or brute force of Bluetooth input devices.
+    requires_software_vuln: true
+    mitre_attack: ["T1557"]   # Adversary-in-the-Middle
+    capec: ["CAPEC-94"]
+    cwe: ["CWE-287", "CWE-326"]  # Inadequate Encryption Strength
+    notes: "KNOB (CVE-2019-9506) negotiates weak key length."
+
+  - id: HID-08
+    name: Supply-Chain Implant
+    direction: DEVICE_TO_HOST
+    summary: >
+      Malicious hardware or firmware introduced during manufacturing,
+      distribution, or refurbishment, before the user ever receives the device.
+    requires_software_vuln: false
+    mitre_attack: ["T1195", "T1200"]  # Supply Chain Compromise; Hardware Additions
+    capec: ["CAPEC-439", "CAPEC-534"] # Manipulation During Distribution; Malicious Hardware Update
+    cwe: ["CWE-1357"]
+    notes: "NSA ANT catalog (documented) is the canonical high-end example."
+
+  - id: HID-09
+    name: Companion Software Compromise
+    direction: COMPANION_TO_HOST
+    summary: >
+      The vendor's driver/configurator/RGB/macro/cloud software is vulnerable,
+      over-privileged, or malicious, and attacks or weakens the host.
+    requires_software_vuln: true
+    mitre_attack: ["T1195.002", "T1543"]  # Compromise Software Supply Chain; Create/Modify System Process
+    capec: ["CAPEC-186"]
+    cwe: ["CWE-269", "CWE-494"]  # Improper Privilege Mgmt; Download of Code Without Integrity Check
+    notes: "Includes BYOVD via signed peripheral kernel drivers."
+
+  - id: HID-10
+    name: Firmware Update Abuse
+    direction: HOST_TO_DEVICE
+    summary: >
+      Insecure firmware update: unsigned images, weak/absent signature checks,
+      no anti-rollback (downgrade), or a compromised update server.
+    requires_software_vuln: true
+    mitre_attack: ["T1542", "T1195"]
+    capec: ["CAPEC-534", "CAPEC-186"]
+    cwe: ["CWE-494", "CWE-345", "CWE-1329"]  # Reliance on component that is not updateable/rollback
+    notes: "Downgrade re-opens fixed device bugs; see anti-rollback in secure-keyboard research."
+
+  - id: HID-11
+    name: Network Exfiltration
+    direction: DEVICE_TO_NETWORK
+    summary: >
+      A device with a radio/secondary channel exfiltrates captured input or
+      receives C2 out-of-band, bypassing host network monitoring.
+    requires_software_vuln: false
+    mitre_attack: ["T1041", "T1011"]  # Exfil Over C2 Channel; Exfil Over Other Network Medium
+    capec: ["CAPEC-624"]
+    cwe: []
+    notes: "O.MG cable (demonstrated); NSA COTTONMOUTH (documented)."
+
+  - id: HID-12
+    name: Device Telemetry Abuse
+    direction: DEVICE_TO_NETWORK
+    summary: >
+      Legitimate-but-excessive telemetry / cloud dependence in peripherals or
+      companion apps expands data exposure and attack surface.
+    requires_software_vuln: false
+    mitre_attack: []
+    capec: []
+    cwe: ["CWE-359"]  # Exposure of Private Personal Information
+    notes: "Privacy-adjacent; distinct from overt exfiltration (HID-11)."
+
+  - id: HID-13
+    name: Physical Tampering
+    direction: HOST_TO_DEVICE
+    summary: >
+      Physical modification of a device: implanting hardware, soldering an
+      inline logger, opening to access debug pads, or swapping the PCB.
+    requires_software_vuln: false
+    mitre_attack: ["T1200"]
+    capec: ["CAPEC-401"]  # Physically Hacking Hardware
+    cwe: ["CWE-1263"]     # Improper Physical Access Control
+    notes: "Tamper evidence is the main defense; see secure-keyboard research."
+
+  - id: HID-14
+    name: Debug Interface Abuse
+    direction: HOST_TO_DEVICE
+    summary: >
+      Exposed/unlocked JTAG/SWD/DFU/UART on the device MCU allows firmware
+      extraction, replacement, or key recovery.
+    requires_software_vuln: false
+    mitre_attack: []
+    capec: ["CAPEC-401"]
+    cwe: ["CWE-1191", "CWE-1244"]  # Exposed debug; Internal asset via debug/test
+    notes: "Very common on commodity keyboard MCUs."
+
+  - id: HID-15
+    name: Host Driver Exploitation
+    direction: DEVICE_TO_HOST
+    summary: >
+      Exploiting bugs in host-side USB/Bluetooth/HID drivers and stacks
+      (memory safety, logic, authorization) via device-supplied data.
+    requires_software_vuln: true
+    mitre_attack: ["T1203", "T1068"]  # Exploitation for Client Execution; Exploitation for Priv Esc
+    capec: ["CAPEC-100"]
+    cwe: ["CWE-787", "CWE-125", "CWE-416", "CWE-476", "CWE-287"]
+    notes: "Superset for host-stack CVEs: BlueBorne class, BlueZ, MS driver spoofing."

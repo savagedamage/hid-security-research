@@ -1,0 +1,54 @@
+id: research-mousejack-2016
+title: "MouseJack / KeyJack: keystroke injection into non-Bluetooth 2.4GHz HID dongles"
+entry_type: academic-research
+cve: null
+date: "2016-02"
+
+affected_product: Various 2.4GHz wireless mouse/keyboard dongles (nRF24-class)
+manufacturer: multiple (Bastille Research disclosure)
+platform: [hardware]
+transport: [proprietary-rf]
+protocol: [hid]
+
+attack_class: [HID-02, HID-07, HID-01]
+attack_direction: [DEVICE_TO_HOST]
+attack_vector: adjacent-network
+prerequisites: >
+  Within ~10-100m RF range; a compatible radio (e.g. Crazyradio/nRF24).
+authentication_required: adjacent-unauth
+user_interaction: none
+firmware_involved: true
+host_component: Proprietary 2.4GHz USB HID dongle firmware
+network_component: false
+
+impact: >
+  Many non-Bluetooth 2.4GHz dongles accept unencrypted/unauthenticated keystroke frames or spoofed devices, letting a nearby attacker inject keystrokes to the host, sometimes even when only a mouse is paired.
+severity:
+  cvss_version: null
+  base_score: null
+  base_severity: null
+  vector: ""
+cwe: [CWE-287, CWE-310]
+
+technical_summary: >
+  Bastille Research (Marc Newlin, 2016) disclosed MouseJack: a class of vulnerabilities in proprietary 2.4GHz (typically Nordic nRF24-based) wireless mouse/keyboard dongles from many vendors. Because keystroke frames were often unencrypted or unauthenticated, an attacker with a cheap radio could inject keystrokes into the host, or force-pair a spoofed keyboard, from tens of meters away. KeyJack extended this to keyboards specifically. This is distinct from Bluetooth and shows a whole separate wireless-HID transport with weaker security than Bluetooth; several vendor CVEs followed (see CVE-2016-6257).
+
+detection: >
+  Prefer wired or authenticated Bluetooth input; RF monitoring; vendor dongle firmware updates.
+mitigation: >
+  Firmware updates from affected vendors; replace non-updatable dongles; avoid proprietary 2.4GHz HID in sensitive settings.
+
+references:
+  - url: "https://www.bastille.net/research/vulnerabilities/mousejack"
+    source: researcher
+    primary: true
+  - url: "https://github.com/BastilleResearch/mousejack"
+    source: researcher
+    primary: true
+
+confidence: high
+evidence: demonstrated
+disputed: false
+notes: >
+  Establishes proprietary-2.4GHz-RF as a distinct, often-weaker HID transport alongside USB and Bluetooth.
+last_reviewed: "2026-08-31"

@@ -1,0 +1,54 @@
+id: research-malboard-2018
+title: "Malboard: attacking behavioral keystroke-dynamics authentication"
+entry_type: academic-research
+cve: null
+date: "2018"
+
+affected_product: Keystroke-dynamics continuous authentication systems
+manufacturer: n/a (academic)
+platform: [cross-platform]
+transport: [usb]
+protocol: [hid]
+
+attack_class: [HID-02, HID-01]
+attack_direction: [DEVICE_TO_HOST]
+attack_vector: physical/logical
+prerequisites: >
+  A compromised or malicious keyboard able to generate keystrokes that mimic a specific user's typing rhythm.
+authentication_required: physical
+user_interaction: none
+firmware_involved: true
+host_component: Behavioral biometric authentication layer
+network_component: false
+
+impact: >
+  A malicious keyboard can impersonate a legitimate user's keystroke dynamics, defeating behavioral-biometric detection that is sometimes proposed as a defense against injection.
+severity:
+  cvss_version: null
+  base_score: null
+  base_severity: null
+  vector: ""
+cwe: []
+
+technical_summary: >
+  Malboard (Farhi, Nissim, Elovici; Computers & Security, 2019) demonstrated a compromised keyboard that generates keystrokes imitating a targeted user's typing behavior, evading three keystroke-dynamics-based intrusion detectors. It is important for this project because it shows that 'detect injection by typing rhythm' is not a complete defense: a sufficiently capable malicious device can also forge the rhythm. Defenses must therefore combine multiple signals (enumeration behavior, timing relative to attach, out-of-band physical key sensing) rather than rely on rhythm alone.
+
+detection: >
+  Do not rely solely on keystroke-dynamics; combine with device-provenance and enumeration-timing signals.
+mitigation: >
+  Multi-signal detection; hardware root-of-trust on the keyboard side.
+
+references:
+  - url: "https://doi.org/10.1016/j.cose.2019.101591"
+    source: academic
+    primary: true
+  - url: "https://www.sciencedirect.com/science/article/abs/pii/S0167404819301737"
+    source: academic
+    primary: true
+
+confidence: medium
+evidence: demonstrated
+disputed: false
+notes: >
+  Tempers optimism about behavioral-only detection; cited in docs/detection.md limitations.
+last_reviewed: "2026-08-31"

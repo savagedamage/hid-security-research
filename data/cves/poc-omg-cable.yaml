@@ -1,0 +1,54 @@
+id: poc-omg-cable
+title: "O.MG Cable: keystroke-injection implant with embedded Wi-Fi inside a normal-looking cable"
+entry_type: security-product
+cve: null
+date: "2019"
+
+affected_product: O.MG Cable
+manufacturer: Mischief Gadgets / MG (sold via Hak5)
+platform: [cross-platform]
+transport: [usb, proprietary-rf]
+protocol: [usb-hid, hid]
+
+attack_class: [HID-01, HID-02, HID-08, HID-11]
+attack_direction: [DEVICE_TO_HOST, DEVICE_TO_NETWORK]
+attack_vector: physical/supply-chain
+prerequisites: >
+  Substituting or planting the malicious cable; attacker within Wi-Fi range for live control.
+authentication_required: physical
+user_interaction: none
+firmware_involved: true
+host_component: Any host that trusts HID input; Wi-Fi implant provides remote trigger/exfil
+network_component: true
+
+impact: >
+  A cable indistinguishable from a normal charging/data cable contains a microcontroller and Wi-Fi radio, enabling remote keystroke injection and out-of-band exfiltration/geofencing -- combining device impersonation, supply-chain substitution, and DEVICE->NETWORK behavior.
+severity:
+  cvss_version: null
+  base_score: null
+  base_severity: null
+  vector: ""
+cwe: []
+
+technical_summary: >
+  The O.MG Cable (MG, sold by Hak5) is a commercially available implant that hides an ESP-class microcontroller with Wi-Fi inside an ordinary-looking USB cable. It can inject keystrokes as a HID keyboard and be controlled remotely over its own Wi-Fi access point/client, independent of the host network. It is the clearest commodity example that DEVICE->NETWORK (an independent radio in a 'dumb' accessory) is real and cheap, and that visual inspection is insufficient. Documented here for defensive awareness; this project ships no attack payloads.
+
+detection: >
+  Independent radio is not host-observable; use HID behavioral detection for the injection side and RF monitoring / physical scanning for the radio.
+mitigation: >
+  Use only trusted cables, data-blocker ('USB condom') cables where only power is needed, HID firewall enforcement, and physical supply-chain control.
+
+references:
+  - url: "https://o.mg.lol/"
+    source: vendor
+    primary: true
+  - url: "https://shop.hak5.org/products/omg-cable"
+    source: vendor
+    primary: true
+
+confidence: high
+evidence: demonstrated
+disputed: false
+notes: >
+  Commodity realization of the COTTONMOUTH concept; strongest argument for hardware-side observation.
+last_reviewed: "2026-08-31"

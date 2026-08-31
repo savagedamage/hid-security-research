@@ -1,0 +1,54 @@
+id: poc-usb-rubber-ducky
+title: "USB Rubber Ducky: commodity keystroke-injection HID device"
+entry_type: security-product
+cve: null
+date: "2010"
+
+affected_product: USB Rubber Ducky (Hak5)
+manufacturer: Hak5
+platform: [cross-platform]
+transport: [usb]
+protocol: [usb-hid, hid]
+
+attack_class: [HID-01, HID-02]
+attack_direction: [DEVICE_TO_HOST]
+attack_vector: physical
+prerequisites: >
+  Physical access to a USB port; the device presents as a HID keyboard and 'types' a scripted payload.
+authentication_required: physical
+user_interaction: none
+firmware_involved: true
+host_component: Any host trusting HID keyboard input
+network_component: false
+
+impact: >
+  Rapid automated keystroke injection to run commands, drop payloads, or change settings at human-implausible speed. Widely used in authorized red-team/pentest engagements.
+severity:
+  cvss_version: null
+  base_score: null
+  base_severity: null
+  vector: ""
+cwe: []
+
+technical_summary: >
+  A commercially sold device that enumerates as a USB HID keyboard and injects a preprogrammed keystroke script ('DuckyScript') at high speed. It is the canonical example that keystroke injection is a productized, low-cost capability. It performs no exploitation -- it relies entirely on the host trusting keyboard input. Included here as a landscape reference and as the behavioral model our detectors must catch (impossible typing rate, immediate post-enumeration input). NOTE: this project documents the technique for defense; it does not ship injection payloads.
+
+detection: >
+  Keystroke-rate anomaly detection (bursts far above human WPM), input arriving within milliseconds of enumeration, no corresponding physical key events.
+mitigation: >
+  USB authorization/allow-listing, HID firewall rate limiting and behavioral blocking, physical port control.
+
+references:
+  - url: "https://shop.hak5.org/products/usb-rubber-ducky"
+    source: vendor
+    primary: true
+  - url: "https://docs.hak5.org/hak5-usb-rubber-ducky"
+    source: vendor
+    primary: true
+
+confidence: high
+evidence: demonstrated
+disputed: false
+notes: >
+  Behavioral baseline for hidwatch injection heuristics.
+last_reviewed: "2026-08-31"
