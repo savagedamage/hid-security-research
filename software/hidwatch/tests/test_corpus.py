@@ -7,6 +7,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from hidwatch.analyzer import analyze
 from hidwatch.fixtures import load_scenario
 from hidwatch.models import RiskLevel
