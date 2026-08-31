@@ -44,10 +44,13 @@ runnable attacks.
 
 ## Corpus
 
-Benign (should score LOW; test false-positive resistance):
-- `benign-keyboard.json` — normal boot keyboard, human-paced typing with jitter.
-- `benign-barcode-scanner.json` — legitimately fast "typing" HID scanner
-  (fast-input allow-listed so it is not misflagged).
+Benign / false-positive controls:
+- `benign-keyboard.json` — normal boot keyboard, human-paced typing with jitter;
+  scores LOW.
+- `benign-barcode-scanner.json` — legitimately fast "typing" HID scanner. It
+  intentionally scores HIGH before policy context, then a corpus test verifies
+  its known VID:PID drops below HIGH when fast-input allow-listed. This documents
+  rather than hides the detector's false-positive boundary.
 
 Suspicious / malicious behavioral shapes (should score HIGH/CRITICAL):
 - `impossible-typing-rate.json` — sustained keystroke rate no human can produce.

@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: software/hidwatch/pyproject.toml
+      - name: Install project and validation dependencies
+        run: python -m pip install -e "software/hidwatch[dev]"
+      - name: Lint
+        run: ruff check software/hidwatch/src software/hidwatch/tests scripts
+      - name: Format check
+        run: ruff format --check software/hidwatch/src software/hidwatch/tests scripts
+      - name: Type check
+        run: mypy software/hidwatch/src
+      - name: Unit and corpus tests
+        run: pytest software/hidwatch/tests
+      - name: Validate research dataset
+        run: python scripts/research-tools/validate_dataset.py
+      - name: Verify generated dataset index
+        run: python scripts/research-tools/build_index.py --check
+      - name: Validate local documentation links
+        run: python scripts/research-tools/check_links.py
+      - name: Compile Python sources
+        run: python -m compileall -q software/hidwatch/src scripts
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
