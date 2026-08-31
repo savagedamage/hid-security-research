@@ -15,6 +15,7 @@ Exit code 0 on success, 1 on any validation error. Used locally and in CI.
 
 No third-party imports beyond PyYAML and jsonschema (declared dev deps).
 """
+
 from __future__ import annotations
 
 import json
@@ -25,7 +26,9 @@ try:
     import yaml
     from jsonschema import Draft7Validator
 except ImportError as exc:  # pragma: no cover - environment guard
-    print(f"ERROR: missing dependency: {exc}. Install with: pip install pyyaml jsonschema")
+    print(
+        f"ERROR: missing dependency: {exc}. Install with: pip install pyyaml jsonschema"
+    )
     sys.exit(2)
 
 REPO = Path(__file__).resolve().parents[2]
@@ -46,7 +49,9 @@ def main() -> int:
     taxonomy_ids = load_taxonomy_ids()
 
     seen_ids: dict[str, Path] = {}
-    entry_files = sorted(p for p in CVE_DIR.glob("*.yaml") if not p.name.startswith("_"))
+    entry_files = sorted(
+        p for p in CVE_DIR.glob("*.yaml") if not p.name.startswith("_")
+    )
 
     if not entry_files:
         print("ERROR: no dataset entries found in data/cves/")

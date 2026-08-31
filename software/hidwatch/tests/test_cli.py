@@ -21,7 +21,9 @@ def test_inspect_demo_benign(capsys: pytest.CaptureFixture[str]) -> None:
     assert "LOW" in out
 
 
-def test_analyze_demo_badusb_returns_nonzero_risk(capsys: pytest.CaptureFixture[str]) -> None:
+def test_analyze_demo_badusb_returns_nonzero_risk(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     rc = main(["analyze", "--demo", "badusb-flashdrive"])
     out = capsys.readouterr().out
     # exit code 2 signals HIGH+ risk (useful for scripting/CI gating).

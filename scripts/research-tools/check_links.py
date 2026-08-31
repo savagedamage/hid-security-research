@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Validate repository-local Markdown links without network access."""
+
 from __future__ import annotations
 
 import re

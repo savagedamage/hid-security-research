@@ -39,7 +39,9 @@ def test_barcode_scanner_downgrades_with_allowlist() -> None:
         pytest.skip("scanner fixture missing")
     scn = load_scenario(path)
     policy = Policy(fast_input_allowlist=FAST_INPUT_ALLOWLIST)
-    report = analyze(scn["device"], scn["events"], policy=policy, attach_time=scn["attach_time"])
+    report = analyze(
+        scn["device"], scn["events"], policy=policy, attach_time=scn["attach_time"]
+    )
     # Allow-listing a legitimate fast typer must reduce its risk below HIGH.
     assert report.level < RiskLevel.HIGH
 

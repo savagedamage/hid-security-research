@@ -8,6 +8,7 @@ Reads all data/cves/*.yaml entries and writes:
 Run: python scripts/research-tools/build_index.py
 CI runs this with --check to ensure the committed index is up to date.
 """
+
 from __future__ import annotations
 
 import csv
@@ -23,9 +24,19 @@ INDEX_MD = CVE_DIR / "INDEX.md"
 INDEX_CSV = CVE_DIR / "index.csv"
 
 CSV_FIELDS = [
-    "id", "entry_type", "cve", "date", "title", "manufacturer",
-    "transport", "attack_class", "attack_direction",
-    "severity_base_score", "severity_base_severity", "evidence", "confidence",
+    "id",
+    "entry_type",
+    "cve",
+    "date",
+    "title",
+    "manufacturer",
+    "transport",
+    "attack_class",
+    "attack_direction",
+    "severity_base_score",
+    "severity_base_severity",
+    "evidence",
+    "confidence",
 ]
 
 
@@ -50,7 +61,9 @@ def flat(e: dict) -> dict:
         "transport": "|".join(e.get("transport") or []),
         "attack_class": "|".join(e.get("attack_class") or []),
         "attack_direction": "|".join(e.get("attack_direction") or []),
-        "severity_base_score": sev.get("base_score") if sev.get("base_score") is not None else "",
+        "severity_base_score": (
+            sev.get("base_score") if sev.get("base_score") is not None else ""
+        ),
         "severity_base_severity": sev.get("base_severity") or "",
         "evidence": e.get("evidence", ""),
         "confidence": e.get("confidence", ""),
@@ -137,7 +150,9 @@ def main() -> int:
 
     INDEX_MD.write_text(md)
     INDEX_CSV.write_text(csv_text)
-    print(f"Wrote {INDEX_MD.relative_to(REPO)} and {INDEX_CSV.relative_to(REPO)} ({len(es)} entries).")
+    print(
+        f"Wrote {INDEX_MD.relative_to(REPO)} and {INDEX_CSV.relative_to(REPO)} ({len(es)} entries)."
+    )
     return 0
 
 

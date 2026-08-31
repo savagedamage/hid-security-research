@@ -136,7 +136,9 @@ def parse_report_descriptor(data: bytes) -> DescriptorSummary:
     while i < n:
         summary.item_count += 1
         if summary.item_count > MAX_ITEMS:
-            raise DescriptorError("too many items (possible hostile/looping descriptor)")
+            raise DescriptorError(
+                "too many items (possible hostile/looping descriptor)"
+            )
 
         prefix = data[i]
         i += 1
@@ -209,9 +211,11 @@ def parse_report_descriptor(data: bytes) -> DescriptorSummary:
                 if collection_depth < 0:
                     raise DescriptorError("End Collection without matching Collection")
             elif item_tag in (TAG_INPUT, TAG_OUTPUT, TAG_FEATURE):
-                kind = {TAG_INPUT: "input", TAG_OUTPUT: "output", TAG_FEATURE: "feature"}[
-                    item_tag
-                ]
+                kind = {
+                    TAG_INPUT: "input",
+                    TAG_OUTPUT: "output",
+                    TAG_FEATURE: "feature",
+                }[item_tag]
                 fld = ReportField(
                     kind=kind,
                     usage_page=usage_page,

@@ -19,13 +19,7 @@ from __future__ import annotations
 import statistics
 
 from hidwatch.descriptor import DescriptorError, parse_report_descriptor
-from hidwatch.models import (
-    Device,
-    Finding,
-    HidReportEvent,
-    RiskLevel,
-    RiskReport,
-)
+from hidwatch.models import Device, Finding, HidReportEvent, RiskLevel, RiskReport
 from hidwatch.policy import DEFAULT_POLICY, Policy
 
 
@@ -52,7 +46,9 @@ def analyze_device(device: Device, policy: Policy = DEFAULT_POLICY) -> RiskRepor
 
     # --- Composite device mixing storage/network + HID keyboard ---
     classes = {i.interface_class for i in device.interfaces}
-    if any(i.is_keyboard for i in device.interfaces) and (0x08 in classes or 0x02 in classes):
+    if any(i.is_keyboard for i in device.interfaces) and (
+        0x08 in classes or 0x02 in classes
+    ):
         report.add(
             Finding(
                 level=RiskLevel.HIGH,
@@ -100,8 +96,12 @@ def analyze_device(device: Device, policy: Policy = DEFAULT_POLICY) -> RiskRepor
                     )
                 )
             # A device declaring a keyboard usage page it shouldn't have.
-            if summary.declares_keyboard and purpose and "keyboard" not in purpose \
-                    and "input" not in purpose:
+            if (
+                summary.declares_keyboard
+                and purpose
+                and "keyboard" not in purpose
+                and "input" not in purpose
+            ):
                 report.add(
                     Finding(
                         level=RiskLevel.HIGH,
@@ -128,7 +128,9 @@ def analyze_behavior(
     time-to-first-input is evaluated.
     """
     report = RiskReport(device=device)
-    fast_ok = device.vendor_id is not None and policy.is_fast_input_allowlisted(device.vid_pid)
+    fast_ok = device.vendor_id is not None and policy.is_fast_input_allowlisted(
+        device.vid_pid
+    )
 
     keypresses = [e for e in events if e.is_keypress]
 

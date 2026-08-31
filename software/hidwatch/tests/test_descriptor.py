@@ -10,10 +10,7 @@ from __future__ import annotations
 import random
 
 import pytest
-from hidwatch.descriptor import (
-    DescriptorError,
-    parse_report_descriptor,
-)
+from hidwatch.descriptor import DescriptorError, parse_report_descriptor
 from hidwatch.fixtures import BOOT_KEYBOARD_DESCRIPTOR
 
 
