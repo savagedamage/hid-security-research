@@ -1,0 +1,43 @@
+# Research raw scratch (kept locally, not committed — re-fetchable from NVD)
+.research-raw/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+.tox/
+
+# Captures may contain sensitive keystroke data — NEVER commit real captures.
+# Only synthetic fixtures under lab/fixtures/ are tracked.
+lab/captures/*.pcap
+lab/captures/*.pcapng
+lab/captures/*.bin
+lab/captures/*.raw
+!lab/captures/.gitkeep
+!lab/captures/README.md
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Secrets — must never be committed (see SECURITY.md)
+*.pem
+*.key
+.env
+.env.*
+!.env.example
