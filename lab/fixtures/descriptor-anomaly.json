@@ -1,0 +1,25 @@
+{
+  "name": "Report descriptor with structural anomalies",
+  "description": "Descriptor declares Report ID 0 (reserved) and has an unbalanced collection. Safe parser flags anomalies without crashing.",
+  "expected_risk": "MEDIUM",
+  "device": {
+    "transport": "usb",
+    "vendor_id": "0x1234",
+    "product_id": "0x0009",
+    "manufacturer": "Generic",
+    "product": "HID Keyboard",
+    "serial": "X1",
+    "declared_purpose": "keyboard",
+    "interfaces": [
+      {
+        "class": 3,
+        "subclass": 1,
+        "protocol": 1,
+        "description": "HID Keyboard"
+      }
+    ],
+    "report_descriptor": "05010906a10185000507750895068100"
+  },
+  "attach_time": 0.0,
+  "events": []
+}

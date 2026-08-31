@@ -1,0 +1,122 @@
+{
+  "name": "Input immediately after enumeration",
+  "description": "Keystrokes begin ~8ms after the device enumerates \u2014 no human reaction window.",
+  "expected_risk": "HIGH",
+  "device": {
+    "transport": "usb",
+    "vendor_id": "0x1234",
+    "product_id": "0x0003",
+    "manufacturer": "Generic",
+    "product": "HID Keyboard",
+    "serial": null,
+    "declared_purpose": "keyboard",
+    "interfaces": [
+      {
+        "class": 3,
+        "subclass": 1,
+        "protocol": 1,
+        "description": "HID Keyboard"
+      }
+    ],
+    "report_descriptor": "05010906a101050719e029e71500250175019508810295017508810195067508150025650507190029658100c0"
+  },
+  "attach_time": 0.0,
+  "events": [
+    {
+      "timestamp": 0.008,
+      "keys": [
+        4
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 0.05597,
+      "keys": [
+        5
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 0.10486,
+      "keys": [
+        6
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 0.20827,
+      "keys": [
+        7
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 0.22279,
+      "keys": [
+        8
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 0.30182,
+      "keys": [
+        9
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 0.31747,
+      "keys": [
+        10
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 0.43384,
+      "keys": [
+        11
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 0.52326,
+      "keys": [
+        12
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 0.64728,
+      "keys": [
+        13
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 0.71549,
+      "keys": [
+        14
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 0.81077,
+      "keys": [
+        15
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    }
+  ]
+}

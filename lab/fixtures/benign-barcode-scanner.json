@@ -1,0 +1,138 @@
+{
+  "name": "Barcode scanner (fast HID keyboard, benign)",
+  "description": "A barcode scanner legitimately 'types' a code fast in a burst. Included to test false-positive resistance; in practice its VID:PID would be fast-input allow-listed.",
+  "expected_risk": "HIGH",
+  "device": {
+    "transport": "usb",
+    "vendor_id": "0x05e0",
+    "product_id": "0x1200",
+    "manufacturer": "ScanCo",
+    "product": "Barcode Scanner",
+    "serial": "SC-77",
+    "declared_purpose": "keyboard",
+    "interfaces": [
+      {
+        "class": 3,
+        "subclass": 1,
+        "protocol": 1,
+        "description": "HID Keyboard (scanner)"
+      }
+    ],
+    "report_descriptor": "05010906a101050719e029e71500250175019508810295017508810195067508150025650507190029658100c0"
+  },
+  "attach_time": 0.0,
+  "events": [
+    {
+      "timestamp": 5.0,
+      "keys": [
+        4
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.03428,
+      "keys": [
+        5
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.08011,
+      "keys": [
+        6
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.10413,
+      "keys": [
+        7
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.14739,
+      "keys": [
+        8
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.17813,
+      "keys": [
+        9
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.20885,
+      "keys": [
+        10
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.26118,
+      "keys": [
+        11
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.29609,
+      "keys": [
+        12
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.32899,
+      "keys": [
+        13
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.36962,
+      "keys": [
+        14
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.41422,
+      "keys": [
+        15
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.44725,
+      "keys": [
+        16
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.48646,
+      "keys": [
+        17
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    }
+  ]
+}

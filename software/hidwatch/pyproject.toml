@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "hidwatch"
+version = "0.1.0"
+description = "Defensive HID (keyboard/input-device) observability and behavioral risk analysis."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "HID Security Research Project contributors" }]
+keywords = ["hid", "usb", "keyboard", "security", "badusb", "monitoring", "defensive-security"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Information Technology",
+  "Topic :: Security",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3 :: Only",
+  "Operating System :: POSIX :: Linux",
+]
+
+# Core library has NO runtime dependencies by design:
+# the tool that watches for exfiltration must not itself pull a large,
+# network-capable dependency tree. Stdlib only.
+dependencies = []
+
+[project.optional-dependencies]
+# Optional live-capture backends (Linux). The core parsers/analyzers work
+# without these, against fixtures and piped input.
+linux = ["pyudev>=0.24; sys_platform == 'linux'"]
+dev = [
+  "pytest>=7.4",
+  "pytest-cov>=4.1",
+  "ruff>=0.5",
+  "mypy>=1.8",
+  "pyyaml>=6.0",
+  "jsonschema>=4.20",
+]
+
+[project.scripts]
+hidwatch = "hidwatch.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/hid-security-research/hid-security-research"
+Repository = "https://github.com/hid-security-research/hid-security-research"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/hidwatch"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["E501"]  # line length handled by formatter
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+files = ["src/hidwatch"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["hidwatch"]

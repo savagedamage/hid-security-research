@@ -1,0 +1,266 @@
+{
+  "name": "Benign boot keyboard, human-paced typing",
+  "description": "Normal USB keyboard, ~6 keys/s with human jitter, typing starts 3s after attach.",
+  "expected_risk": "LOW",
+  "device": {
+    "transport": "usb",
+    "vendor_id": "0x046d",
+    "product_id": "0xc31c",
+    "manufacturer": "Example Corp",
+    "product": "Standard Keyboard",
+    "serial": "KB-0001",
+    "declared_purpose": "keyboard",
+    "interfaces": [
+      {
+        "class": 3,
+        "subclass": 1,
+        "protocol": 1,
+        "description": "HID Boot Keyboard"
+      }
+    ],
+    "report_descriptor": "05010906a101050719e029e71500250175019508810295017508810195067508150025650507190029658100c0"
+  },
+  "attach_time": 0.0,
+  "events": [
+    {
+      "timestamp": 3.0,
+      "keys": [
+        4
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 3.15387,
+      "keys": [
+        5
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 3.34611,
+      "keys": [
+        6
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 3.50147,
+      "keys": [
+        7
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 3.65239,
+      "keys": [
+        8
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 3.77255,
+      "keys": [
+        9
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 3.92855,
+      "keys": [
+        10
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 4.15082,
+      "keys": [
+        11
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 4.33869,
+      "keys": [
+        12
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 4.5572,
+      "keys": [
+        13
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 4.73631,
+      "keys": [
+        14
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 4.92272,
+      "keys": [
+        15
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.09865,
+      "keys": [
+        16
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.18201,
+      "keys": [
+        17
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.39144,
+      "keys": [
+        18
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.58343,
+      "keys": [
+        19
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.77504,
+      "keys": [
+        20
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.85714,
+      "keys": [
+        21
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 5.93661,
+      "keys": [
+        22
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 6.05879,
+      "keys": [
+        23
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 6.20205,
+      "keys": [
+        4
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 6.38399,
+      "keys": [
+        5
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 6.54836,
+      "keys": [
+        6
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 6.74108,
+      "keys": [
+        7
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 6.87563,
+      "keys": [
+        8
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 7.05773,
+      "keys": [
+        9
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 7.24411,
+      "keys": [
+        10
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 7.37772,
+      "keys": [
+        11
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 7.63026,
+      "keys": [
+        12
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    },
+    {
+      "timestamp": 7.82476,
+      "keys": [
+        13
+      ],
+      "modifiers": 0,
+      "raw_len": 8
+    }
+  ]
+}

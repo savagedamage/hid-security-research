@@ -1,0 +1,31 @@
+{
+  "name": "BadUSB composite: storage + hidden keyboard",
+  "description": "A device declared as storage that also exposes a keyboard interface (BadUSB pattern), no serial.",
+  "expected_risk": "HIGH",
+  "device": {
+    "transport": "usb",
+    "vendor_id": "0x1234",
+    "product_id": "0x5678",
+    "manufacturer": "Generic",
+    "product": "USB Flash Drive",
+    "serial": null,
+    "declared_purpose": "storage",
+    "interfaces": [
+      {
+        "class": 8,
+        "subclass": 6,
+        "protocol": 80,
+        "description": "Mass Storage"
+      },
+      {
+        "class": 3,
+        "subclass": 1,
+        "protocol": 1,
+        "description": "HID Boot Keyboard"
+      }
+    ],
+    "report_descriptor": "05010906a101050719e029e71500250175019508810295017508810195067508150025650507190029658100c0"
+  },
+  "attach_time": 0.0,
+  "events": []
+}
