@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from hidwatch.backends import linux_sysfs
 from hidwatch.backends.linux_sysfs import (
     diff_snapshots,
     list_usb_devices,
@@ -78,6 +79,21 @@ def test_multiple_device_interfaces_do_not_cross_associate(tmp_path: Path) -> No
     assert len(snapshot["1-10"].interfaces) == 1
 
 
+def test_nested_hub_path_associates_multiple_interfaces(tmp_path: Path) -> None:
+    _add_device(tmp_path, "1-2.3")
+    second = tmp_path / "1-2.3:1.1"
+    _write(second / "bInterfaceClass", "03")
+    _write(second / "bInterfaceSubClass", "00")
+    _write(second / "bInterfaceProtocol", "00")
+
+    snapshot = snapshot_usb_devices(tmp_path)
+    interfaces = snapshot["1-2.3"].interfaces
+    assert [interface.description for interface in interfaces] == [
+        "1-2.3:1.0",
+        "1-2.3:1.1",
+    ]
+
+
 def test_unreadable_or_missing_root_returns_empty(tmp_path: Path) -> None:
     assert snapshot_usb_devices(tmp_path / "missing") == {}
     assert list_usb_devices(tmp_path / "missing") == []
@@ -137,6 +153,41 @@ def test_watcher_detects_attach_with_injected_sleep(tmp_path: Path) -> None:
     assert len(events) == 1
     assert events[0].kind == "attach"
     assert events[0].device.keyboard_interfaces
+
+
+def test_watcher_preserves_baseline_across_transient_scan_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    keyboard = Device(
+        transport=Transport.USB,
+        vendor_id=0x046D,
+        product_id=0xC31C,
+        interfaces=[DeviceInterface(0x03, 0x01, 0x01)],
+    )
+    scans = iter([{"1-1": keyboard}, None, {"1-1": keyboard}])
+    monkeypatch.setattr(linux_sysfs, "_snapshot_usb_devices", lambda _root: next(scans))
+
+    events = list(watch_usb_events(interval=0, iterations=2, sleep=lambda _interval: None))
+    assert events == []
+
+
+def test_repeated_identical_polls_do_not_duplicate_events(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    keyboard = Device(
+        transport=Transport.USB,
+        vendor_id=0x046D,
+        product_id=0xC31C,
+        interfaces=[DeviceInterface(0x03, 0x01, 0x01)],
+    )
+    scans = iter([{}, {"1-1": keyboard}, {"1-1": keyboard}, {}])
+    monkeypatch.setattr(linux_sysfs, "_snapshot_usb_devices", lambda _root: next(scans))
+
+    events = list(watch_usb_events(interval=0, iterations=3, sleep=lambda _interval: None))
+    assert [(event.kind, event.sysfs_name) for event in events] == [
+        ("attach", "1-1"),
+        ("detach", "1-1"),
+    ]
 
 
 def test_watcher_validates_arguments(tmp_path: Path) -> None:

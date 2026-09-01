@@ -77,21 +77,21 @@ def available(root: Path | None = None) -> bool:
         return False
 
 
-def snapshot_usb_devices(root: Path | None = None) -> UsbSnapshot:
-    """Capture a point-in-time USB inventory keyed by stable sysfs path name.
+def _snapshot_usb_devices(root: Path | None = None) -> UsbSnapshot | None:
+    """Capture an inventory, returning ``None`` when the scan itself failed.
 
-    The key identifies a physical topology slot for the current enumeration
-    (for example ``1-1``), which makes reconnects and interface-set changes
-    detectable without pretending VID/PID or serial are authenticated identity.
+    ``None`` is intentionally distinct from an empty successful inventory so a
+    transient permission/read failure is not misreported as every device
+    detaching.
     """
     selected = SYSFS_USB if root is None else root
     if not available(selected):
-        return {}
+        return None
 
     try:
         entries = sorted(selected.iterdir(), key=lambda p: p.name)
     except OSError:
-        return {}
+        return None
 
     device_entries = [entry for entry in entries if (entry / "idVendor").exists()]
     interface_entries = [entry for entry in entries if (entry / "bInterfaceClass").exists()]
@@ -125,6 +125,16 @@ def snapshot_usb_devices(root: Path | None = None) -> UsbSnapshot:
 
         snapshot[entry.name] = device
     return snapshot
+
+
+def snapshot_usb_devices(root: Path | None = None) -> UsbSnapshot:
+    """Capture a point-in-time USB inventory keyed by stable sysfs path name.
+
+    The key identifies a physical topology slot for the current enumeration
+    (for example ``1-1``), which makes reconnects and interface-set changes
+    detectable without pretending VID/PID or serial are authenticated identity.
+    """
+    return _snapshot_usb_devices(root) or {}
 
 
 def list_usb_devices(root: Path | None = None) -> list[Device]:
@@ -166,11 +176,12 @@ def watch_usb_events(
     if iterations is not None and iterations < 0:
         raise ValueError("iterations must be non-negative or None")
 
-    previous = snapshot_usb_devices(root)
+    previous = _snapshot_usb_devices(root) or {}
     completed = 0
     while iterations is None or completed < iterations:
         sleep(interval)
-        current = snapshot_usb_devices(root)
-        yield from diff_snapshots(previous, current)
-        previous = current
+        current = _snapshot_usb_devices(root)
+        if current is not None:
+            yield from diff_snapshots(previous, current)
+            previous = current
         completed += 1
