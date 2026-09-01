@@ -130,17 +130,17 @@ def _snapshot_usb_devices(root: Path | None = None) -> UsbSnapshot | None:
             if not interface.name.startswith(prefix):
                 continue
             icls = _read_hex(interface / "bInterfaceClass")
-            if icls is None:
-                return None
             subclass = _read_hex(interface / "bInterfaceSubClass")
             protocol = _read_hex(interface / "bInterfaceProtocol")
+            if icls is None or subclass is None or protocol is None:
+                return None
             if not entry.exists() or not interface.exists():
                 return None
             device.interfaces.append(
                 DeviceInterface(
                     interface_class=icls,
-                    subclass=subclass or 0,
-                    protocol=protocol or 0,
+                    subclass=subclass,
+                    protocol=protocol,
                     description=interface.name,
                 )
             )

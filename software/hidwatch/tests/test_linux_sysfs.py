@@ -94,6 +94,23 @@ def test_nested_hub_path_associates_multiple_interfaces(tmp_path: Path) -> None:
     ]
 
 
+@pytest.mark.parametrize(
+    ("interface_field", "attribute"),
+    [
+        ("interface_subclass", "subclass"),
+        ("interface_protocol", "protocol"),
+    ],
+)
+def test_legitimate_zero_interface_value_is_preserved(
+    tmp_path: Path, interface_field: str, attribute: str
+) -> None:
+    _add_device(tmp_path, **{interface_field: "00"})
+
+    interface = snapshot_usb_devices(tmp_path)["1-1"].interfaces[0]
+
+    assert getattr(interface, attribute) == 0
+
+
 def test_unreadable_or_missing_root_returns_empty(tmp_path: Path) -> None:
     assert snapshot_usb_devices(tmp_path / "missing") == {}
     assert list_usb_devices(tmp_path / "missing") == []
@@ -106,7 +123,10 @@ def test_malformed_hex_is_treated_as_unknown_not_crash(tmp_path: Path) -> None:
     assert device.product_id == 0xC31C
 
 
-@pytest.mark.parametrize("unreadable_name", ["product", "bInterfaceClass"])
+@pytest.mark.parametrize(
+    "unreadable_name",
+    ["product", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol"],
+)
 def test_partial_sysfs_read_invalidates_entire_snapshot(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, unreadable_name: str
 ) -> None:
@@ -119,6 +139,16 @@ def test_partial_sysfs_read_invalidates_entire_snapshot(
         return original_read(path)
 
     monkeypatch.setattr(linux_sysfs, "_read", fail_one)
+    assert linux_sysfs._snapshot_usb_devices(tmp_path) is None
+
+
+@pytest.mark.parametrize("field", ["bInterfaceSubClass", "bInterfaceProtocol"])
+def test_malformed_required_interface_field_invalidates_entire_snapshot(
+    tmp_path: Path, field: str
+) -> None:
+    _add_device(tmp_path)
+    _write(tmp_path / "1-1:1.0" / field, "not-hex")
+
     assert linux_sysfs._snapshot_usb_devices(tmp_path) is None
 
 
@@ -192,6 +222,49 @@ def test_watcher_preserves_baseline_across_transient_scan_failure(
 
     events = list(watch_usb_events(interval=0, iterations=2, sleep=lambda _interval: None))
     assert events == []
+
+
+@pytest.mark.parametrize("field", ["bInterfaceSubClass", "bInterfaceProtocol"])
+@pytest.mark.parametrize("failure", ["read", "malformed"])
+def test_watcher_preserves_baseline_across_incomplete_interface_poll(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    field: str,
+    failure: str,
+) -> None:
+    _add_device(tmp_path)
+    original_read = linux_sysfs._read
+    fail_read = False
+    polls = 0
+
+    def read_with_failure(path: Path) -> str | None:
+        if fail_read and path.name == field:
+            return None
+        return original_read(path)
+
+    def mutate(_interval: float) -> None:
+        nonlocal fail_read, polls
+        polls += 1
+        if polls == 1:
+            if failure == "read":
+                fail_read = True
+            else:
+                _write(tmp_path / "1-1:1.0" / field, "not-hex")
+        elif polls == 2:
+            fail_read = False
+            _write(tmp_path / "1-1:1.0" / field, "01")
+        else:
+            _write(tmp_path / "1-1:1.0" / field, "02")
+
+    monkeypatch.setattr(linux_sysfs, "_read", read_with_failure)
+
+    events = list(watch_usb_events(root=tmp_path, interval=0, iterations=3, sleep=mutate))
+
+    assert [(event.kind, event.sysfs_name) for event in events] == [("change", "1-1")]
+    assert events[0].previous is not None
+    attribute = "subclass" if field == "bInterfaceSubClass" else "protocol"
+    assert getattr(events[0].previous.interfaces[0], attribute) == 1
+    assert getattr(events[0].device.interfaces[0], attribute) == 2
 
 
 def test_repeated_identical_polls_do_not_duplicate_events(
