@@ -133,9 +133,7 @@ def test_watcher_detects_attach_with_injected_sleep(tmp_path: Path) -> None:
         if calls == 1:
             _add_device(tmp_path)
 
-    events = list(
-        watch_usb_events(root=tmp_path, interval=0, iterations=1, sleep=mutate)
-    )
+    events = list(watch_usb_events(root=tmp_path, interval=0, iterations=1, sleep=mutate))
     assert len(events) == 1
     assert events[0].kind == "attach"
     assert events[0].device.keyboard_interfaces
