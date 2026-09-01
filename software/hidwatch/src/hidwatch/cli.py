@@ -2,6 +2,7 @@
 
 Subcommands (see software/hidwatch/README.md):
   hidwatch list                 -- enumerate HID/USB devices (read-only)
+  hidwatch monitor              -- watch USB attach/detach/change events
   hidwatch inspect [--demo X]   -- detailed view of a device / fixture
   hidwatch analyze <scenario>   -- risk-analyze a JSON scenario or a fixture
   hidwatch descriptor <hex>     -- parse+validate a raw report descriptor
@@ -141,6 +142,40 @@ def cmd_inspect(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_monitor(args: argparse.Namespace) -> int:
+    """Watch read-only sysfs snapshots for USB/HID lifecycle changes."""
+    from hidwatch.backends import linux_sysfs
+
+    if not linux_sysfs.available():
+        print("No readable Linux USB sysfs backend; live monitoring is unavailable.")
+        return 0
+
+    print(
+        f"Monitoring USB {'devices' if args.all else 'HID devices'} "
+        f"every {args.interval:g}s (Ctrl-C to stop)."
+    )
+    try:
+        events = linux_sysfs.watch_usb_events(interval=args.interval, iterations=args.count)
+        for event in events:
+            if not args.all and not event.device.hid_interfaces:
+                continue
+            role = "keyboard" if event.device.keyboard_interfaces else "HID"
+            risk = analyze_device(event.device)
+            print(
+                f"[{event.kind.upper():6}] {event.sysfs_name:12} "
+                f"{event.device.vid_pid} {role:8} {risk.level.name:8} "
+                f"{event.device.product or '(unknown)'}"
+            )
+            for reason in risk.reasons():
+                print(f"           - {reason}")
+    except KeyboardInterrupt:
+        print("Monitoring stopped.")
+    except ValueError as exc:
+        print(f"Invalid monitor configuration: {exc}", file=sys.stderr)
+        return 2
+    return 0
+
+
 def cmd_analyze(args: argparse.Namespace) -> int:
     if args.demo == "badusb-flashdrive":
         device = badusb_flashdrive()
@@ -215,6 +250,16 @@ def build_parser() -> argparse.ArgumentParser:
     p_list = sub.add_parser("list", help="enumerate HID/USB devices (read-only)")
     p_list.add_argument("--all", action="store_true", help="show all USB devices, not just HID")
     p_list.set_defaults(func=cmd_list)
+
+    p_mon = sub.add_parser("monitor", help="watch USB/HID attach, detach, and change events")
+    p_mon.add_argument("--all", action="store_true", help="include non-HID USB devices")
+    p_mon.add_argument(
+        "--interval", type=float, default=1.0, help="poll interval in seconds (default: 1.0)"
+    )
+    p_mon.add_argument(
+        "--count", type=int, help="stop after N comparisons (default: run until Ctrl-C)"
+    )
+    p_mon.set_defaults(func=cmd_monitor)
 
     p_ins = sub.add_parser("inspect", help="detailed view + risk of a device/fixture")
     p_ins.add_argument("--demo", choices=sorted(DEMOS), help="inspect a built-in fixture")

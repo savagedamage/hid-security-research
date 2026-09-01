@@ -54,10 +54,10 @@ Read the full [Threat Model](THREAT_MODEL.md) and
 | --- | --- | --- |
 | Research | Protocol docs, serious threat model, 15-class taxonomy, cited sources | Continuous review and broader corpus |
 | Dataset | 21 schema-validated records: 14 CVEs + clearly labeled research/PoC/incident/product entries; generated Markdown/CSV index | Comprehensive coverage (not yet) |
-| `hidwatch` | Stdlib-only core, defensive report-descriptor parser, read-only Linux sysfs enumeration, explainable risk analyzer, CLI | Live udev/hidraw monitor, record, enforcement |
+| `hidwatch` | Stdlib-only core, defensive report-descriptor parser, correct read-only Linux sysfs inventory, attach/detach/change monitor, explainable risk analyzer, CLI | Live hidraw metrics, optional udev delivery, record, enforcement |
 | Lab | Six synthetic scenarios; hostile parser tests; no real keystrokes | Authorized multi-device physical testing |
 | Hardware | Detailed gateway and secure-keyboard architecture | No prototype or certification |
-| Quality | 87 tests, dataset/schema validation, CI definitions | Production hardening and external audit |
+| Quality | 97 tests, dataset/schema validation, green CI | Production hardening and external audit |
 
 ## Quick start
 

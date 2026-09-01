@@ -24,8 +24,10 @@ Risk: HID quirks and vendor-defined usages.
 
 ## Stage 3 — HIDWatch prototype (current: v0.1 core)
 
-Deliverables: list/inspect/analyze/report/policy CLI, Linux enumeration, live
-udev attach/detach and hidraw report metrics, safe recording with redaction.
+Deliverables: list/monitor/inspect/analyze/report/policy CLI and Linux enumeration are
+implemented; dependency-free polling attach/detach/change monitoring is
+implemented. Remaining: optional live udev delivery, hidraw report metrics, and
+safe recording with redaction.
 Exit: installs cleanly on supported Linux; integration tests on authorized real
 hardware. Risk: permissions, privacy of captures, platform variance.
 

@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import pytest
 
+from hidwatch.backends import linux_sysfs
 from hidwatch.cli import main
+from hidwatch.fixtures import badusb_flashdrive
 
 
 def test_version_exits_zero(capsys: pytest.CaptureFixture[str]) -> None:
@@ -56,3 +58,36 @@ def test_list_degrades_without_backend(capsys: pytest.CaptureFixture[str]) -> No
     # Should never crash even if sysfs is unavailable/unreadable.
     rc = main(["list"])
     assert rc == 0
+
+
+def test_monitor_degrades_without_backend(
+    capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(linux_sysfs, "available", lambda: False)
+    rc = main(["monitor", "--count", "1", "--interval", "0"])
+    assert rc == 0
+    assert "unavailable" in capsys.readouterr().out
+
+
+def test_monitor_prints_attach_risk(
+    capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    event = linux_sysfs.UsbDeviceEvent("attach", "1-1", badusb_flashdrive())
+    monkeypatch.setattr(linux_sysfs, "available", lambda: True)
+    monkeypatch.setattr(linux_sysfs, "watch_usb_events", lambda **_kwargs: iter([event]))
+
+    rc = main(["monitor", "--count", "1", "--interval", "0"])
+    output = capsys.readouterr().out
+    assert rc == 0
+    assert "[ATTACH]" in output
+    assert "HIGH" in output
+    assert "classic BadUSB pattern" in output
+
+
+def test_monitor_rejects_negative_interval(
+    capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(linux_sysfs, "available", lambda: True)
+    rc = main(["monitor", "--count", "1", "--interval", "-1"])
+    assert rc == 2
+    assert "interval must be non-negative" in capsys.readouterr().err

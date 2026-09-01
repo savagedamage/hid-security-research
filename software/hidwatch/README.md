@@ -7,9 +7,10 @@ that keystroke injection, device impersonation, and descriptor anomalies can be
 detected. It is part of the [hid-security-research](../../README.md) project.
 
 > **Status: alpha (v0.1.0).** Implemented: report-descriptor parser, behavioral
-> analyzer + explainable risk scoring, synthetic fixtures, read-only Linux sysfs
-> enumeration, and a CLI. Planned: live report capture (hidraw/usbmon), udev
-> event monitoring, persistent recording, richer wireless signals. See
+> analyzer + explainable risk scoring, synthetic fixtures, correct read-only
+> Linux sysfs enumeration, polling-based attach/detach/change monitoring, and a
+> CLI. Planned: live report metrics (hidraw/usbmon), optional udev event delivery,
+> privacy-safe recording, and richer wireless signals. See
 > `../../ROADMAP.md`.
 
 ## Design principles
@@ -41,6 +42,8 @@ PYTHONPATH=src python -m hidwatch.cli --help
 
 ```bash
 hidwatch list                          # enumerate HID/USB devices (read-only)
+hidwatch monitor                       # watch HID attach/detach/change events
+hidwatch monitor --all --interval 0.5 # include all USB devices
 hidwatch inspect --demo benign-keyboard
 hidwatch inspect --demo badusb-flashdrive
 hidwatch analyze --demo badusb-flashdrive     # simulated scripted injection
@@ -87,6 +90,10 @@ Reasons:
   legitimately type fast; see `../../docs/detection.md` §5).
 - `fixtures.py` — synthetic benign/suspicious scenarios and a JSON scenario
   loader for `../../lab/fixtures/`.
+- `backends/linux_sysfs.py` — dependency-free, read-only inventory and lifecycle
+  monitoring. It correctly associates Linux's sibling device/interface entries
+  (`1-1` and `1-1:1.0`) and diffs snapshots by topology name. Polling is the
+  portable fallback; a future udev source can implement the same event model.
 
 ## Limitations (read `../../docs/detection.md` §4)
 

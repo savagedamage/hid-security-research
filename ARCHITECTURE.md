@@ -21,7 +21,9 @@ synthetic/authorized observations → hidwatch parser → analyzer → explainab
    CSV indexes are generated.
 3. **Software layer** (`software/hidwatch/`) is a stdlib-only core with models,
    hostile-input descriptor parser, transparent analyzer/policy, synthetic
-   fixtures, read-only backends, and CLI. It performs no core network calls.
+   fixtures, read-only inventory/lifecycle backends, and CLI. The Linux backend
+   models attach, detach, and metadata/interface changes by diffing sysfs
+   snapshots without claiming devices. It performs no core network calls.
 4. **Lab layer** (`lab/`) contains synthetic fixtures and authorized experiment
    plans. Real keystrokes/captures are excluded.
 5. **Hardware/product layer** (`hardware/`, `products/`) separates speculative
