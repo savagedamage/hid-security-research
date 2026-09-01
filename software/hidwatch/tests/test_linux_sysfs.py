@@ -106,6 +106,29 @@ def test_malformed_hex_is_treated_as_unknown_not_crash(tmp_path: Path) -> None:
     assert device.product_id == 0xC31C
 
 
+@pytest.mark.parametrize("unreadable_name", ["product", "bInterfaceClass"])
+def test_partial_sysfs_read_invalidates_entire_snapshot(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, unreadable_name: str
+) -> None:
+    _add_device(tmp_path)
+    original_read = linux_sysfs._read
+
+    def fail_one(path: Path) -> str | None:
+        if path.name == unreadable_name:
+            return None
+        return original_read(path)
+
+    monkeypatch.setattr(linux_sysfs, "_read", fail_one)
+    assert linux_sysfs._snapshot_usb_devices(tmp_path) is None
+
+
+def test_legitimately_absent_optional_strings_are_allowed(tmp_path: Path) -> None:
+    _add_device(tmp_path, serial=None)
+    snapshot = snapshot_usb_devices(tmp_path)
+    assert snapshot["1-1"].serial is None
+    assert snapshot["1-1"].keyboard_interfaces
+
+
 def test_diff_snapshots_attach_detach_and_change() -> None:
     keyboard = Device(
         transport=Transport.USB,

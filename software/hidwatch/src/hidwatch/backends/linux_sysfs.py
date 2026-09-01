@@ -52,6 +52,10 @@ def _read(path: Path) -> str | None:
 
 def _read_hex(path: Path) -> int | None:
     val = _read(path)
+    return _parse_hex(val)
+
+
+def _parse_hex(val: str | None) -> int | None:
     if val is None:
         return None
     try:
@@ -98,13 +102,27 @@ def _snapshot_usb_devices(root: Path | None = None) -> UsbSnapshot | None:
     snapshot: UsbSnapshot = {}
 
     for entry in device_entries:
+        vendor_raw = _read(entry / "idVendor")
+        product_raw = _read(entry / "idProduct")
+        if vendor_raw is None or product_raw is None:
+            return None
+
+        optional_values: dict[str, str | None] = {}
+        for field in ("manufacturer", "product", "serial"):
+            path = entry / field
+            existed = path.exists()
+            value = _read(path)
+            if existed and value is None:
+                return None
+            optional_values[field] = value
+
         device = Device(
             transport=Transport.USB,
-            vendor_id=_read_hex(entry / "idVendor"),
-            product_id=_read_hex(entry / "idProduct"),
-            manufacturer=_read(entry / "manufacturer"),
-            product=_read(entry / "product"),
-            serial=_read(entry / "serial"),
+            vendor_id=_parse_hex(vendor_raw),
+            product_id=_parse_hex(product_raw),
+            manufacturer=optional_values["manufacturer"],
+            product=optional_values["product"],
+            serial=optional_values["serial"],
         )
 
         prefix = f"{entry.name}:"
@@ -113,16 +131,22 @@ def _snapshot_usb_devices(root: Path | None = None) -> UsbSnapshot | None:
                 continue
             icls = _read_hex(interface / "bInterfaceClass")
             if icls is None:
-                continue
+                return None
+            subclass = _read_hex(interface / "bInterfaceSubClass")
+            protocol = _read_hex(interface / "bInterfaceProtocol")
+            if not entry.exists() or not interface.exists():
+                return None
             device.interfaces.append(
                 DeviceInterface(
                     interface_class=icls,
-                    subclass=_read_hex(interface / "bInterfaceSubClass") or 0,
-                    protocol=_read_hex(interface / "bInterfaceProtocol") or 0,
+                    subclass=subclass or 0,
+                    protocol=protocol or 0,
                     description=interface.name,
                 )
             )
 
+        if not entry.exists():
+            return None
         snapshot[entry.name] = device
     return snapshot
 

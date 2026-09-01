@@ -57,7 +57,7 @@ Read the full [Threat Model](THREAT_MODEL.md) and
 | `hidwatch` | Stdlib-only core, defensive report-descriptor parser, correct read-only Linux sysfs inventory, attach/detach/change monitor, explainable risk analyzer, CLI | Live hidraw metrics, optional udev delivery, record, enforcement |
 | Lab | Six synthetic scenarios; hostile parser tests; no real keystrokes | Authorized multi-device physical testing |
 | Hardware | Detailed gateway and secure-keyboard architecture | No prototype or certification |
-| Quality | 100 tests, dataset/schema validation, green CI | Production hardening and external audit |
+| Quality | 103 tests, dataset/schema validation, green CI | Production hardening and external audit |
 
 ## Quick start
 
