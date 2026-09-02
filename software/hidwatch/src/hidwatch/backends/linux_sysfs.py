@@ -52,6 +52,10 @@ def _read(path: Path) -> str | None:
 
 def _read_hex(path: Path) -> int | None:
     val = _read(path)
+    return _parse_hex(val)
+
+
+def _parse_hex(val: str | None) -> int | None:
     if val is None:
         return None
     try:
@@ -77,34 +81,48 @@ def available(root: Path | None = None) -> bool:
         return False
 
 
-def snapshot_usb_devices(root: Path | None = None) -> UsbSnapshot:
-    """Capture a point-in-time USB inventory keyed by stable sysfs path name.
+def _snapshot_usb_devices(root: Path | None = None) -> UsbSnapshot | None:
+    """Capture an inventory, returning ``None`` when the scan itself failed.
 
-    The key identifies a physical topology slot for the current enumeration
-    (for example ``1-1``), which makes reconnects and interface-set changes
-    detectable without pretending VID/PID or serial are authenticated identity.
+    ``None`` is intentionally distinct from an empty successful inventory so a
+    transient permission/read failure is not misreported as every device
+    detaching.
     """
     selected = SYSFS_USB if root is None else root
     if not available(selected):
-        return {}
+        return None
 
     try:
         entries = sorted(selected.iterdir(), key=lambda p: p.name)
     except OSError:
-        return {}
+        return None
 
     device_entries = [entry for entry in entries if (entry / "idVendor").exists()]
     interface_entries = [entry for entry in entries if (entry / "bInterfaceClass").exists()]
     snapshot: UsbSnapshot = {}
 
     for entry in device_entries:
+        vendor_raw = _read(entry / "idVendor")
+        product_raw = _read(entry / "idProduct")
+        if vendor_raw is None or product_raw is None:
+            return None
+
+        optional_values: dict[str, str | None] = {}
+        for field in ("manufacturer", "product", "serial"):
+            path = entry / field
+            existed = path.exists()
+            value = _read(path)
+            if existed and value is None:
+                return None
+            optional_values[field] = value
+
         device = Device(
             transport=Transport.USB,
-            vendor_id=_read_hex(entry / "idVendor"),
-            product_id=_read_hex(entry / "idProduct"),
-            manufacturer=_read(entry / "manufacturer"),
-            product=_read(entry / "product"),
-            serial=_read(entry / "serial"),
+            vendor_id=_parse_hex(vendor_raw),
+            product_id=_parse_hex(product_raw),
+            manufacturer=optional_values["manufacturer"],
+            product=optional_values["product"],
+            serial=optional_values["serial"],
         )
 
         prefix = f"{entry.name}:"
@@ -112,19 +130,35 @@ def snapshot_usb_devices(root: Path | None = None) -> UsbSnapshot:
             if not interface.name.startswith(prefix):
                 continue
             icls = _read_hex(interface / "bInterfaceClass")
-            if icls is None:
-                continue
+            subclass = _read_hex(interface / "bInterfaceSubClass")
+            protocol = _read_hex(interface / "bInterfaceProtocol")
+            if icls is None or subclass is None or protocol is None:
+                return None
+            if not entry.exists() or not interface.exists():
+                return None
             device.interfaces.append(
                 DeviceInterface(
                     interface_class=icls,
-                    subclass=_read_hex(interface / "bInterfaceSubClass") or 0,
-                    protocol=_read_hex(interface / "bInterfaceProtocol") or 0,
+                    subclass=subclass,
+                    protocol=protocol,
                     description=interface.name,
                 )
             )
 
+        if not entry.exists():
+            return None
         snapshot[entry.name] = device
     return snapshot
+
+
+def snapshot_usb_devices(root: Path | None = None) -> UsbSnapshot:
+    """Capture a point-in-time USB inventory keyed by stable sysfs path name.
+
+    The key identifies a physical topology slot for the current enumeration
+    (for example ``1-1``), which makes reconnects and interface-set changes
+    detectable without pretending VID/PID or serial are authenticated identity.
+    """
+    return _snapshot_usb_devices(root) or {}
 
 
 def list_usb_devices(root: Path | None = None) -> list[Device]:
@@ -166,11 +200,12 @@ def watch_usb_events(
     if iterations is not None and iterations < 0:
         raise ValueError("iterations must be non-negative or None")
 
-    previous = snapshot_usb_devices(root)
+    previous = _snapshot_usb_devices(root) or {}
     completed = 0
     while iterations is None or completed < iterations:
         sleep(interval)
-        current = snapshot_usb_devices(root)
-        yield from diff_snapshots(previous, current)
-        previous = current
+        current = _snapshot_usb_devices(root)
+        if current is not None:
+            yield from diff_snapshots(previous, current)
+            previous = current
         completed += 1

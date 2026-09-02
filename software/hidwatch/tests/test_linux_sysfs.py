@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from hidwatch.backends import linux_sysfs
 from hidwatch.backends.linux_sysfs import (
     diff_snapshots,
     list_usb_devices,
@@ -78,6 +79,38 @@ def test_multiple_device_interfaces_do_not_cross_associate(tmp_path: Path) -> No
     assert len(snapshot["1-10"].interfaces) == 1
 
 
+def test_nested_hub_path_associates_multiple_interfaces(tmp_path: Path) -> None:
+    _add_device(tmp_path, "1-2.3")
+    second = tmp_path / "1-2.3:1.1"
+    _write(second / "bInterfaceClass", "03")
+    _write(second / "bInterfaceSubClass", "00")
+    _write(second / "bInterfaceProtocol", "00")
+
+    snapshot = snapshot_usb_devices(tmp_path)
+    interfaces = snapshot["1-2.3"].interfaces
+    assert [interface.description for interface in interfaces] == [
+        "1-2.3:1.0",
+        "1-2.3:1.1",
+    ]
+
+
+@pytest.mark.parametrize(
+    ("interface_field", "attribute"),
+    [
+        ("interface_subclass", "subclass"),
+        ("interface_protocol", "protocol"),
+    ],
+)
+def test_legitimate_zero_interface_value_is_preserved(
+    tmp_path: Path, interface_field: str, attribute: str
+) -> None:
+    _add_device(tmp_path, **{interface_field: "00"})
+
+    interface = snapshot_usb_devices(tmp_path)["1-1"].interfaces[0]
+
+    assert getattr(interface, attribute) == 0
+
+
 def test_unreadable_or_missing_root_returns_empty(tmp_path: Path) -> None:
     assert snapshot_usb_devices(tmp_path / "missing") == {}
     assert list_usb_devices(tmp_path / "missing") == []
@@ -88,6 +121,42 @@ def test_malformed_hex_is_treated_as_unknown_not_crash(tmp_path: Path) -> None:
     device = snapshot_usb_devices(tmp_path)["1-1"]
     assert device.vendor_id is None
     assert device.product_id == 0xC31C
+
+
+@pytest.mark.parametrize(
+    "unreadable_name",
+    ["product", "bInterfaceClass", "bInterfaceSubClass", "bInterfaceProtocol"],
+)
+def test_partial_sysfs_read_invalidates_entire_snapshot(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, unreadable_name: str
+) -> None:
+    _add_device(tmp_path)
+    original_read = linux_sysfs._read
+
+    def fail_one(path: Path) -> str | None:
+        if path.name == unreadable_name:
+            return None
+        return original_read(path)
+
+    monkeypatch.setattr(linux_sysfs, "_read", fail_one)
+    assert linux_sysfs._snapshot_usb_devices(tmp_path) is None
+
+
+@pytest.mark.parametrize("field", ["bInterfaceSubClass", "bInterfaceProtocol"])
+def test_malformed_required_interface_field_invalidates_entire_snapshot(
+    tmp_path: Path, field: str
+) -> None:
+    _add_device(tmp_path)
+    _write(tmp_path / "1-1:1.0" / field, "not-hex")
+
+    assert linux_sysfs._snapshot_usb_devices(tmp_path) is None
+
+
+def test_legitimately_absent_optional_strings_are_allowed(tmp_path: Path) -> None:
+    _add_device(tmp_path, serial=None)
+    snapshot = snapshot_usb_devices(tmp_path)
+    assert snapshot["1-1"].serial is None
+    assert snapshot["1-1"].keyboard_interfaces
 
 
 def test_diff_snapshots_attach_detach_and_change() -> None:
@@ -137,6 +206,84 @@ def test_watcher_detects_attach_with_injected_sleep(tmp_path: Path) -> None:
     assert len(events) == 1
     assert events[0].kind == "attach"
     assert events[0].device.keyboard_interfaces
+
+
+def test_watcher_preserves_baseline_across_transient_scan_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    keyboard = Device(
+        transport=Transport.USB,
+        vendor_id=0x046D,
+        product_id=0xC31C,
+        interfaces=[DeviceInterface(0x03, 0x01, 0x01)],
+    )
+    scans = iter([{"1-1": keyboard}, None, {"1-1": keyboard}])
+    monkeypatch.setattr(linux_sysfs, "_snapshot_usb_devices", lambda _root: next(scans))
+
+    events = list(watch_usb_events(interval=0, iterations=2, sleep=lambda _interval: None))
+    assert events == []
+
+
+@pytest.mark.parametrize("field", ["bInterfaceSubClass", "bInterfaceProtocol"])
+@pytest.mark.parametrize("failure", ["read", "malformed"])
+def test_watcher_preserves_baseline_across_incomplete_interface_poll(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    field: str,
+    failure: str,
+) -> None:
+    _add_device(tmp_path)
+    original_read = linux_sysfs._read
+    fail_read = False
+    polls = 0
+
+    def read_with_failure(path: Path) -> str | None:
+        if fail_read and path.name == field:
+            return None
+        return original_read(path)
+
+    def mutate(_interval: float) -> None:
+        nonlocal fail_read, polls
+        polls += 1
+        if polls == 1:
+            if failure == "read":
+                fail_read = True
+            else:
+                _write(tmp_path / "1-1:1.0" / field, "not-hex")
+        elif polls == 2:
+            fail_read = False
+            _write(tmp_path / "1-1:1.0" / field, "01")
+        else:
+            _write(tmp_path / "1-1:1.0" / field, "02")
+
+    monkeypatch.setattr(linux_sysfs, "_read", read_with_failure)
+
+    events = list(watch_usb_events(root=tmp_path, interval=0, iterations=3, sleep=mutate))
+
+    assert [(event.kind, event.sysfs_name) for event in events] == [("change", "1-1")]
+    assert events[0].previous is not None
+    attribute = "subclass" if field == "bInterfaceSubClass" else "protocol"
+    assert getattr(events[0].previous.interfaces[0], attribute) == 1
+    assert getattr(events[0].device.interfaces[0], attribute) == 2
+
+
+def test_repeated_identical_polls_do_not_duplicate_events(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    keyboard = Device(
+        transport=Transport.USB,
+        vendor_id=0x046D,
+        product_id=0xC31C,
+        interfaces=[DeviceInterface(0x03, 0x01, 0x01)],
+    )
+    scans = iter([{}, {"1-1": keyboard}, {"1-1": keyboard}, {}])
+    monkeypatch.setattr(linux_sysfs, "_snapshot_usb_devices", lambda _root: next(scans))
+
+    events = list(watch_usb_events(interval=0, iterations=3, sleep=lambda _interval: None))
+    assert [(event.kind, event.sysfs_name) for event in events] == [
+        ("attach", "1-1"),
+        ("detach", "1-1"),
+    ]
 
 
 def test_watcher_validates_arguments(tmp_path: Path) -> None:

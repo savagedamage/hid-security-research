@@ -16,8 +16,21 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import TypedDict
 
 from hidwatch.models import Device, DeviceInterface, HidReportEvent, Transport
+
+
+class Scenario(TypedDict):
+    """Normalized synthetic scenario returned by :func:`load_scenario`."""
+
+    name: str
+    description: str
+    expected_risk: str | None
+    device: Device
+    attach_time: float | None
+    events: list[HidReportEvent]
+
 
 # Boot-keyboard report descriptor (canonical, from HID 1.11 spec Appendix E.6).
 BOOT_KEYBOARD_DESCRIPTOR = bytes(
@@ -130,7 +143,7 @@ def synth_typing(
     return events
 
 
-def load_scenario(path: str | Path) -> dict:
+def load_scenario(path: str | Path) -> Scenario:
     """Load a JSON scenario file (lab/fixtures/*.json).
 
     Schema (see lab/fixtures/README.md):
