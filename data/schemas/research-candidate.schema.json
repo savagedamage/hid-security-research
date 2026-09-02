@@ -1,0 +1,135 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/hid-security-research/data/schemas/research-candidate.schema.json",
+  "title": "HID research candidate queue",
+  "description": "Discovery-stage leads awaiting evidence and HID-relevance review. Candidates are not canonical catalog claims.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "last_reviewed", "candidates"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "last_reviewed": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "candidates": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/candidate" }
+    }
+  },
+  "definitions": {
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "title", "discovered_from", "source_url", "discovered_on",
+        "possible_attack_classes", "possible_directions", "possible_platforms",
+        "possible_transports", "target_record_type", "status", "hid_relevance",
+        "review_notes", "reviewed_on"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^candidate-[0-9]{4}$"
+        },
+        "title": { "type": "string", "minLength": 4 },
+        "discovered_from": { "type": "string", "minLength": 2 },
+        "source_url": { "type": "string", "format": "uri" },
+        "discovered_on": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "possible_attack_classes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^HID-[0-9]{2}$" }
+        },
+        "possible_directions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "DEVICE_TO_HOST", "HOST_TO_DEVICE", "DEVICE_TO_NETWORK",
+              "COMPANION_TO_HOST"
+            ]
+          }
+        },
+        "possible_platforms": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        },
+        "possible_transports": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "usb", "bluetooth-bredr", "ble", "proprietary-rf",
+              "wired-nonusb", "n/a", "any"
+            ]
+          }
+        },
+        "target_record_type": {
+          "type": "string",
+          "enum": [
+            "CVE", "academic-research", "proof-of-concept",
+            "documented-incident", "security-product", "theoretical-threat",
+            "malware-or-campaign", "resource", "undetermined"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "needs-relevance-review", "needs-primary-source", "ready-for-entry",
+            "deferred", "rejected", "duplicate"
+          ]
+        },
+        "hid_relevance": { "type": ["string", "null"] },
+        "review_notes": { "type": ["string", "null"] },
+        "reviewed_on": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "status": { "const": "ready-for-entry" } },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "hid_relevance": { "type": "string", "minLength": 20 },
+              "reviewed_on": { "type": "string" },
+              "target_record_type": {
+                "enum": [
+                  "CVE", "academic-research", "proof-of-concept",
+                  "documented-incident", "security-product", "theoretical-threat"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": { "enum": ["rejected", "duplicate"] }
+            },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "review_notes": { "type": "string", "minLength": 10 },
+              "reviewed_on": { "type": "string" }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

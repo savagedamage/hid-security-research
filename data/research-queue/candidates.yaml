@@ -1,0 +1,6 @@
+version: "0.1.0"
+last_reviewed: "2026-09-02"
+
+# Discovery leads belong here before they become catalog claims. An empty queue
+# is valid. See README.md for workflow and required evidence checks.
+candidates: []

@@ -57,7 +57,7 @@ Read the full [Threat Model](THREAT_MODEL.md) and
 | `hidwatch` | Stdlib-only core, defensive report-descriptor parser, correct read-only Linux sysfs inventory, attach/detach/change monitor, explainable risk analyzer, CLI | Live hidraw metrics, optional udev delivery, record, enforcement |
 | Lab | Six synthetic scenarios; hostile parser tests; no real keystrokes | Authorized multi-device physical testing |
 | Hardware | Detailed gateway and secure-keyboard architecture | No prototype or certification |
-| Quality | 97 tests, dataset/schema validation, green CI | Production hardening and external audit |
+| Quality | 100+ tests, dataset/schema validation, green CI | Production hardening and external audit |
 
 ## Quick start
 
@@ -66,6 +66,8 @@ Read the full [Threat Model](THREAT_MODEL.md) and
 python -m pip install pyyaml jsonschema
 python scripts/research-tools/validate_dataset.py
 python scripts/research-tools/build_index.py --check
+python scripts/research-tools/validate_research_queue.py
+python scripts/research-tools/build_coverage.py --check
 
 # hidwatch (works without hardware using safe synthetic fixtures)
 cd software/hidwatch
@@ -90,6 +92,8 @@ Scores are explainable; no opaque model is involved.
 - [Detection](docs/detection.md) · [Mitigation](docs/mitigation.md)
 - [Dataset index](data/cves/INDEX.md) ·
   [Attack taxonomy](data/attack-taxonomy/taxonomy.yaml)
+- [Research scope](research/scope-and-inclusion.md) ·
+  [Catalog coverage](research/coverage.md)
 - [HID firewall architecture](products/hid-firewall/architecture.md) ·
   [Secure keyboard architecture](hardware/architecture/secure-keyboard.md)
 - [Business opportunity](docs/business-opportunity.md) ·

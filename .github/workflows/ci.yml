@@ -31,11 +31,15 @@ jobs:
       - name: Type check
         run: mypy software/hidwatch/src
       - name: Unit and corpus tests
-        run: pytest software/hidwatch/tests
+        run: pytest software/hidwatch/tests scripts/research-tools/tests
       - name: Validate research dataset
         run: python scripts/research-tools/validate_dataset.py
+      - name: Validate research candidate queue
+        run: python scripts/research-tools/validate_research_queue.py
       - name: Verify generated dataset index
         run: python scripts/research-tools/build_index.py --check
+      - name: Verify generated coverage report
+        run: python scripts/research-tools/build_coverage.py --check
       - name: Validate local documentation links
         run: python scripts/research-tools/check_links.py
       - name: Compile Python sources

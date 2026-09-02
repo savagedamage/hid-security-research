@@ -68,6 +68,24 @@ against `data/schemas/cve-entry.schema.json`. To add an entry:
 
 Only **public** vulnerabilities may be added (see `SECURITY.md` §3).
 
+### Discovery-stage leads
+
+Do not promote search results or unverified lists directly into the canonical
+dataset. First apply the HID relevance criteria in
+`research/scope-and-inclusion.md`. Leads that still need relevance or
+primary-source review belong in `data/research-queue/candidates.yaml` and must
+validate against `data/schemas/research-candidate.schema.json`.
+
+Run the research workflow checks with:
+
+```bash
+python scripts/research-tools/validate_research_queue.py
+python scripts/research-tools/build_coverage.py --check
+```
+
+Candidate records are triage metadata, not established project claims. See
+`data/research-queue/README.md` for statuses and promotion rules.
+
 ---
 
 ## Software contributions
